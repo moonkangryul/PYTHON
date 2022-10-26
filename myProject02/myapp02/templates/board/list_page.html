@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container">
+  <div class="d-flex justify-content-end">
+    <form action="/list_page" method="GET" class="form-inline mr-3">
+        <input type="text" class="form-control" id="word" placeholder="Enter Search" name="word" value="{{word}}">
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+<h1>BOARD</h1>
+    <table class="table">
+      <tr class="table-warning">
+                <th>번호</th>
+                <th>제목</th>
+                <th>작성자</th>
+                <th>작성일</th>
+                <th>조회수</th>
+                <th>첨부파일</th>
+                <th>파일이미지</th>
+                <th>다운로드</th>
+          </tr>
+      <tbody>
+        {% for board in page_list %}
+        <tr>
+          <td>{{board.idx}}</td>
+          <td>{{board.title}}</td>
+          <td>{{board.writer}}</td>
+          <td>{{board.post_date}}</td>
+          <td>{{board.hit}}</td>
+          <td>{{board.filename}}</td>
+          <td>{% if board.filesize > 0 %}
+              <span class="_imgs" data-url="/download_count?idx={{board.idx}}">
+                <img src="{% static 'images/file.jpg' %}"></td>
+              </span>
+              {% endif %}  
+          <td class="_downCnt">{{board.down}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <!-- 페이지 번호 -->
+    <ul class="pagination">
+      {% if page_list.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{page_list.previous_page_number}}&word={{word}}">Previous</a></li>
+      {% endif %}
+      {% if page_list.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{page_list.next_page_number}}&word={{word}}">Next</a></li>
+      {% endif %}
+    </ul>
+</div>
+
+{% endblock %}
+
+{% block script %}
+  <script>
+    $("._imgs") .on("click",function(){
+      _imgs = $(this)
+      $.ajax({
+          type: "GET",
+          url : $(this).attr('data-url'),
+          success : function(data){ 
+              //alert(data.count)
+              _imgs.parent().parent().find("._downCnt").text(data.count) 
+              location.href = "/download?idx=" + data.idx
+          }                 
+      })
+    })
+  </script>
+{% endblock %}
