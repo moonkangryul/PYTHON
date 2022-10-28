@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container">
+    <table class="table">
+        <tr class="table-warning">
+            <th>번호</th>
+            <th>제목</th>
+            <th>작성자</th>
+            <th>작성일</th>
+            <th>조회수</th>
+            <th>첨부파일</th>
+            <th>파일이미지</th>
+        </tr>
+        <tbody>
+            <tr>
+              <td>{{dto.idx}}</td>
+              <td>{{dto.title}}</td>
+              <td>{{dto.writer.username}}</td>
+              <td>{{dto.post_date}}</td>
+              <td>{{dto.hit}}</td>
+              <td>{{dto.filename}}</td>
+              <td>{% if dto.filesize > 0 %}
+                <span class="_imgs" data-url="/download_count?idx={{dto.idx}}">
+                  <img src="{% static 'images/file.jpg' %}"></td>
+                </span>
+                {% endif %}  
+            <td class="_downCnt">{{board.down}}</td>
+            </tr>
+          </tbody>
+    </table>
+    {% if dto.writer.username == user.username %}
+      <button type="button" class="btn btn-warning _update" data-uri="/update/{{dto.idx}}">수정</button>
+      
+      <button type="button" class="btn btn-light _delete" data-uri="/delete/{{dto.idx}}">삭제</button>
+
+      <br/><br/>
+      {% endif %}
+    <h4>Comment</h4>
+    <form
+     action="/comment_insert/" method="post">
+      <input type="hidden" name="idx" value="{{dto.idx}}">
+      <div class="form-group">  
+          <textarea class="form-control" name="Comment" rows="5" placeholder="Comment Insert"></textarea>
+      </div>
+        <button type="submit" class="btn btn-warning">CommentWrite</button>
+    </form>
+    <!-- comment count -->
+    <div class="mt-3">Comment({{dto.comments_set.count}})</div>
+   
+    <div>
+    {% if dto.comments_set.count > 0 %}
+    <div class="container">
+      <table class="table">
+          <tr class="table">
+              <th>제목</th>
+              <th>작성자</th>
+              <th>작성일</th>
+              <th></th>
+            </tr>
+      <!-- comment list -->
+      {% for comment in dto.comments_set.all %}
+      <tbody>
+        <tr>
+            <td>{{comment.content}}</td>
+            <td>{{comment.writer}}</td>
+            <td>{{comment.post_date}}</td>
+            {% if comment.writer.username == user.username %}
+            <td><button type="button" class="btn btn-warning _update" data-uri="/update/{{dto.comments.idx}}">수정</button>
+            <button type="button" class="btn btn-light _delete" data-uri="/delete/{{dto.comments.idx}}">삭제</button></td>
+          {% endif %}
+      <br/><br/>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </div>
+    {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+  $("._update").on('click',function(){
+    location.href=$(this).data('uri')
+  })
+
+
+  $("._delete").on('click',function(){
+    alert('정말 삭제할까요?')
+    location.href=$(this).data('uri')
+  })
+</script>
+
+{% endblock %}
